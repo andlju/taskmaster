@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Taskmaster.Service", "Taskmaster.Service\Taskmaster.Service.csproj", "{F06AE47F-2263-48B0-9DF5-CC450AE3395F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Taskmaster.DataAccess", "Taskmaster.DataAccess\Taskmaster.DataAccess.csproj", "{038DD469-6D4C-47A7-852A-4623C6174238}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Taskmaster.Domain", "Taskmaster.Domain\Taskmaster.Domain.csproj", "{EB9521BF-6ACD-43DC-AA76-724CCB5A88F4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F06AE47F-2263-48B0-9DF5-CC450AE3395F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F06AE47F-2263-48B0-9DF5-CC450AE3395F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F06AE47F-2263-48B0-9DF5-CC450AE3395F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F06AE47F-2263-48B0-9DF5-CC450AE3395F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{038DD469-6D4C-47A7-852A-4623C6174238}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{038DD469-6D4C-47A7-852A-4623C6174238}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{038DD469-6D4C-47A7-852A-4623C6174238}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{038DD469-6D4C-47A7-852A-4623C6174238}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB9521BF-6ACD-43DC-AA76-724CCB5A88F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB9521BF-6ACD-43DC-AA76-724CCB5A88F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB9521BF-6ACD-43DC-AA76-724CCB5A88F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB9521BF-6ACD-43DC-AA76-724CCB5A88F4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
