@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Data.Objects;
 using System.Linq;
 using System.Linq.Expressions;
@@ -10,29 +11,29 @@ namespace Petite
 	/// <summary>
 	/// Interface implemented by the Context class to provide an Object Set
 	/// </summary>
-	public interface IObjectSetProvider
+	public interface IDbSetProvider
 	{
 		/// <summary>
-		/// Create an Object Set for a specific entity
+		/// Create a Db Set for a specific entity
 		/// </summary>
 		/// <typeparam name="TEntity">Type of the entity to provide a set for</typeparam>
 		/// <returns>An object set for <typeparamref name="TEntity"/> objects</returns>
-		IObjectSet<TEntity> CreateObjectSet<TEntity>() where TEntity : class;
+		IDbSet<TEntity> CreateDbSet<TEntity>() where TEntity : class;
 	}
 
 	/// <summary>
 	/// Interface for creating an object context
 	/// </summary>
-	public interface IObjectContextFactory
+	public interface IDbContextFactory
 	{
 		/// <summary>
 		/// Create an Entity Framework object context
 		/// </summary>
-		/// <returns>A new ObjectContext</returns>
-		ObjectContext Create();
+		/// <returns>A new DbContext</returns>
+		DbContext Create();
 
 		/// <summary>
-		/// Identifies this Object Context
+		/// Identifies this Db Context
 		/// </summary>
 		string ContextTypeName { get; }
 	}
@@ -41,10 +42,10 @@ namespace Petite
 	/// Factory for creating an Entity Framework ObjectContext
 	/// </summary>
 	/// <typeparam name="TContext">Type of ObjectContext to create</typeparam>
-	public class ObjectContextFactory<TContext> : IObjectContextFactory
-		where TContext : ObjectContext, new()
+	public class DbContextFactory<TContext> : IDbContextFactory
+		where TContext : DbContext, new()
 	{
-		public ObjectContext Create()
+		public DbContext Create()
 		{
 			return new TContext();
 		}
@@ -59,54 +60,55 @@ namespace Petite
 	/// This will act as an IObjectSetProvider and IObjectContext using a per WCF-operation ObjectContext that is
 	/// automatically disposed of when completed.
 	/// </summary>
-	public class WcfObjectContextAdapter : IObjectSetProvider, IObjectContext
+	public class WcfObjectContextAdapter : IDbSetProvider, IObjectContext
 	{
-		private readonly IObjectContextFactory _contextFactory;
+		private readonly IDbContextFactory _contextFactory;
 
 		/// <summary>
 		/// Create a new instance of the adapter
 		/// </summary>
 		/// <param name="contextFactory">Factory to use to construct the DbContext</param>
-		public WcfObjectContextAdapter(IObjectContextFactory contextFactory)
+		public WcfObjectContextAdapter(IDbContextFactory contextFactory)
 		{
 			_contextFactory = contextFactory;
 		}
 
 		protected virtual string KeyName { get { return _contextFactory.ContextTypeName; } }
 
-		public IObjectSet<TEntity> CreateObjectSet<TEntity>() where TEntity : class
+		public IDbSet<TEntity> CreateDbSet<TEntity>() where TEntity : class
 		{
 			var context = GetCurrentContext();
-			return context.CreateObjectSet<TEntity>();
+			return context.Set<TEntity>();
 		}
 
 		public int SaveChanges()
 		{
 			var context = GetCurrentContext();
+            
 			return context.SaveChanges();
 		}
 
 		public void Detach(object obj)
 		{
-			var context = GetCurrentContext();
-			context.Detach(obj);
+			/*var context = GetCurrentContext();
+			context.(obj);*/
 		}
 
-		protected ObjectContext GetCurrentContext()
+		protected DbContext GetCurrentContext()
 		{
 			var storageExtension = OperationContextStorageExtension.Current;
 
-			var objContext = storageExtension.Get<ObjectContext>(KeyName);
+			var dbContext = storageExtension.Get<DbContext>(KeyName);
 
-			if(objContext == null)
+			if(dbContext == null)
 			{
 				// No DbContext has been created for this operation yet. Create a new one...
-				objContext = _contextFactory.Create();
+				dbContext = _contextFactory.Create();
 				// ... store it and make sure it will be Disposed when the operation is completed.
-				storageExtension.Store(objContext, KeyName, () => objContext.Dispose());
+				storageExtension.Store(dbContext, KeyName, () => dbContext.Dispose());
 			}
 
-			return objContext;
+			return dbContext;
 		}
 	}
 
@@ -114,30 +116,35 @@ namespace Petite
 	/// A simple implementation of IObjectContext and IObjectSetProvider that creates a single object context
 	/// and uses it
 	/// </summary>
-	public class SingleUsageObjectContextAdapter : IObjectSetProvider, IObjectContext
+	public class SingleUsageObjectContextAdapter : IDbSetProvider, IObjectContext, IDisposable
 	{
-		private readonly IObjectContextFactory _contextFactory;
-		protected ObjectContext ObjContext { get; private set; }
+		private readonly IDbContextFactory _contextFactory;
+		protected DbContext DbContext { get; private set; }
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="contextFactory"></param>
-		public SingleUsageObjectContextAdapter(IObjectContextFactory contextFactory)
+		public SingleUsageObjectContextAdapter(IDbContextFactory contextFactory)
 		{
 			_contextFactory = contextFactory;
-			ObjContext = _contextFactory.Create();
+			DbContext = _contextFactory.Create();
 		}
 
-		public IObjectSet<TEntity> CreateObjectSet<TEntity>() where TEntity : class
+		public IDbSet<TEntity> CreateDbSet<TEntity>() where TEntity : class
 		{
-			return ObjContext.CreateObjectSet<TEntity>();
+			return DbContext.Set<TEntity>();
 		}
 
 		public int SaveChanges()
 		{
-			return ObjContext.SaveChanges();
+			return DbContext.SaveChanges();
 		}
+
+	    public void Dispose()
+	    {
+	        DbContext.Dispose();
+	    }
 	}
 
 
@@ -266,11 +273,11 @@ namespace Petite
 	public class RepositoryBase<TEntity> : IRepository<TEntity>
 		where TEntity : class
 	{
-		private readonly IObjectSet<TEntity> _objectSet;
+		private readonly IDbSet<TEntity> _objectSet;
 
-		public RepositoryBase(IObjectSetProvider objectSetProvider)
+		public RepositoryBase(IDbSetProvider objectSetProvider)
 		{
-			_objectSet = objectSetProvider.CreateObjectSet<TEntity>();
+			_objectSet = objectSetProvider.CreateDbSet<TEntity>();
 
 			if(_objectSet == null)
 				throw new InvalidOperationException("Unable to create object set");
@@ -279,7 +286,7 @@ namespace Petite
 		/// <summary>
 		/// This property can be used by derived classes in order to get access to the underlying DbSet
 		/// </summary>
-		protected virtual IObjectSet<TEntity> Query
+		protected virtual IDbSet<TEntity> Query
 		{
 			get { return _objectSet; }
 		}
@@ -313,7 +320,7 @@ namespace Petite
 		/// </summary>
 		public virtual void Add(TEntity entity)
 		{
-			_objectSet.AddObject(entity);
+			_objectSet.Add(entity);
 		}
 
 		/// <summary>
@@ -321,7 +328,7 @@ namespace Petite
 		/// </summary>
 		public virtual void Delete(TEntity entity)
 		{
-			_objectSet.DeleteObject(entity);
+			_objectSet.Remove(entity);
 		}
 	}
 

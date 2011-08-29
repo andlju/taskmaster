@@ -9,7 +9,10 @@ namespace Taskmaster.Domain
         public string Details { get; set; }
 
         public User AssignedTo { get; set; }
+        public int AssignedToId { get; set; }
+
         public User CreatedBy { get; set; }
+        public int CreatedById { get; set; }
     }
 
     public class User

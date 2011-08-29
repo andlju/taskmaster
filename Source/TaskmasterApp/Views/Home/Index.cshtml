@@ -1,0 +1,77 @@
+﻿@model object
+
+@{
+    ViewBag.Title = "Title";
+}
+<script type="text/javascript">
+
+    function Task(taskItemId, title, details) {
+        this.taskItemId = ko.observable(taskItemId);
+        this.title = ko.observable(title);
+        this.details = ko.observable(details);
+        
+        var self = this;
+
+        this.update = function () {
+            $.ajax({
+                type: 'POST',
+                url: "/Api/Tasks",
+                data: ko.toJSON(self),
+                success: function (status) { alert(status); },
+                contentType : "application/json"
+            });
+        };
+    }
+
+    function TasksViewModel() {
+        this.taskList = ko.observableArray([new Task(0, "", "")]);
+
+        this.selectedTask = ko.observable();
+
+        var self = this;
+
+        this.refresh = function() {
+            $.getJSON('/Api/Tasks', { }, function(data, status) {
+                $.each(data['TaskItems'], function(no, item) {
+                    self.taskList.push(new Task(item.TaskItemId, item.Title, item.Details));
+                });
+            });
+        };
+        
+        
+    };
+
+    var viewModel = new TasksViewModel();
+
+    $(function () {
+
+        ko.applyBindings(viewModel);
+        viewModel.refresh();
+    });
+    
+</script>
+
+<h2>Title</h2>
+
+<div>
+    <select data-bind="options: taskList,
+                       optionsText: 'title', 
+                       value: selectedTask">
+                       
+                       </select>
+
+    <fieldset>
+        <ul>
+            <li>
+                <label for="titleBox">Title</label>
+                <input id="titleBox" type="text" data-bind="value: selectedTask().title"/>
+            </li>
+            <li>
+                <label for="detailsBox">Details</label>
+                <input id="detailsBox" type="text" data-bind="value: selectedTask().details"/>
+            </li>
+        </ul>
+        <a href="#" data-bind="click: selectedTask().update" id="submitLink">Update</a>
+    </fieldset>
+</div>
+

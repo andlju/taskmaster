@@ -40,7 +40,7 @@ namespace Taskmaster.Service
 
     public class AddTaskItemResponse : ResponseBase
     {
-        public TaskItem TaskItem { get; set; }
+        public int TaskItemId { get; set; }
     }
 
     public class EditTaskItemRequest : RequestBase
@@ -52,25 +52,25 @@ namespace Taskmaster.Service
 
     public class EditTaskItemResponse : ResponseBase
     {
-        public TaskItem TaskItem { get; set; }
+        public int TaskItemId { get; set; }
     }
 
-    public class FindTaskItemByNameRequest : RequestBase
+    public class FindTaskItemsByNameRequest : RequestBase
     {
         public string Query { get; set; }
     }
 
-    public class FindTaskItemByNameResponse : ResponseBase
+    public class FindTaskItemsByNameResponse : ResponseBase
     {
         public List<TaskItem> TaskItems { get; set; }
     }
 
-    public class FindTaskItemByAssignedUserRequest : RequestBase
+    public class FindTaskItemsByAssignedUserRequest : RequestBase
     {
-        public string AssignedUserId { get; set; }
+        public int AssignedUserId { get; set; }
     }
 
-    public class FindTaskItemByAssignedUserResponse : ResponseBase
+    public class FindTaskItemsByAssignedUserResponse : ResponseBase
     {
         public List<TaskItem> TaskItems { get; set; }
     }
@@ -80,7 +80,7 @@ namespace Taskmaster.Service
         AddTaskItemResponse AddTaskItem(AddTaskItemRequest request);
         EditTaskItemResponse EditTaskItem(EditTaskItemRequest request);
 
-        FindTaskItemByNameResponse FindTaskItemByName(FindTaskItemByNameRequest request);
-        FindTaskItemByAssignedUserResponse FindTaskItemByAssignedUser(FindTaskItemByAssignedUserRequest request);
+        FindTaskItemsByNameResponse FindTaskItemsByName(FindTaskItemsByNameRequest request);
+        FindTaskItemsByAssignedUserResponse FindTaskItemsByAssignedUser(FindTaskItemsByAssignedUserRequest request);
     }
 }
