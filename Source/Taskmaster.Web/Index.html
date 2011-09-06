@@ -1,8 +1,11 @@
 ﻿<!DOCTYPE html>
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
     <title>Taskmaster</title>
-    <link href="Styles/Site.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="Styles/main.less" type="text/less" media="screen" />
+
+    <script src="Scripts/less-1.1.3.min.js" type="text/javascript" ></script>
+    
     <script src="Scripts/jquery-1.6.2.min.js" type="text/javascript"></script>
     <script src="Scripts/knockout-1.3.0beta.js" type="text/javascript"></script>
 </head>
@@ -60,35 +63,45 @@
         });
     
     </script>
-    <h2>Title</h2>
-    <div>
-        <select data-bind="options: taskList,
-                           optionsText: 'title',
-                           value: selectedTask, 
-                           optionsCaption: 'Choose...'">
-        </select>
-        <br/>
-        <a href="#" data-bind="click: addTask" id="addTask">Add</a>
 
-        <div data-bind="visible: selectedTask(), template: {name: 'selectedTaskTemplate', foreach: selectedTask}"></div>
-        <script id="selectedTaskTemplate" type="text/html">
-            <form>  
-            <fieldset>
-                <legend data-bind="text: 'Editing: ' + title()"></legend>
-                <ul>
-                    <li>
+    <header id="top">
+        <h1>Taskmaster</h1>
+    </header>
+
+    <div class="center">
+        <aside id="left"></aside>
+        <article>
+            <section id="selectionPanel">
+                <select data-bind="options: taskList,
+                                    optionsText: 'title',
+                                    value: selectedTask, 
+                                    optionsCaption: 'Choose...'">
+                </select>
+                <a href="#" data-bind="click: addTask" id="addTask">Add</a>
+            </section>
+
+            <section id="editPanel">
+                <div data-bind="visible: selectedTask(), template: {name: 'selectedTaskTemplate', foreach: selectedTask}"></div>
+
+                <script id="selectedTaskTemplate" type="text/html">
+                    <fieldset>
+                        <legend data-bind="text: 'Editing: ' + title()"></legend>
+                        <p>
                         <label for="titleBox">Title</label>
                         <input id="titleBox" type="text" data-bind="value: title" />
-                    </li>
-                    <li>
+                        </p>
+                        <p>
                         <label for="detailsBox">Details</label>
-                        <input id="detailsBox" type="text" data-bind="value: details" />
-                    </li>
-                </ul>
-                <a href="#" data-bind="click: update" id="submitLink">Update</a>
-            </fieldset>
-            </form>
-        </script>
+                        <textarea id="detailsBox" rows="6" columns="50" data-bind="text: details" />
+                        </p>
+                        <p>
+                        <a href="#" data-bind="click: update" id="submitLink">Update</a>
+                        </p>
+                    </fieldset>
+                </script>
+            </section>
+        </article>
+        <aside id="right"></aside>
     </div>
 </body>
 </html>
