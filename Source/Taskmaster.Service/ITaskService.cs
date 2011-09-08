@@ -5,7 +5,7 @@ namespace Taskmaster.Service
 {
     public class User
     {
-        public int MemberId { get; set; }
+        public int UserId { get; set; }
 
         public string Name { get; set; }
 
@@ -17,9 +17,7 @@ namespace Taskmaster.Service
         public string Title { get; set; }
         public string Details { get; set; }
 
-        public DateTime DueDate { get; set; }
-
-        public int AssignedMemberId { get; set; }
+        public int AssignedUserId { get; set; }
     }
 
     public class RequestBase
@@ -36,6 +34,8 @@ namespace Taskmaster.Service
     {
         public string Title { get; set; }
         public string Details { get; set; }
+
+        public int AssignedUserId { get; set; }
     }
 
     public class AddTaskItemResponse : ResponseBase
@@ -48,6 +48,8 @@ namespace Taskmaster.Service
         public int TaskItemId { get; set; }
         public string Title { get; set; }
         public string Details { get; set; }
+
+        public int AssignedUserId { get; set; }
     }
 
     public class EditTaskItemResponse : ResponseBase

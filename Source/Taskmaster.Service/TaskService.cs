@@ -35,13 +35,14 @@ namespace Taskmaster.Service
                                    CreatedById = request.UserId,
                                    AssignedToId = request.UserId
                                };
+
             _taskItemRepository.Add(taskItem);
             _context.SaveChanges();
 
             return new AddTaskItemResponse()
                        {
                            StatusCode = StatusOk,
-                           TaskItemId = taskItem.TaskItemId
+                           TaskItemId = taskItem.TaskItemId,
                        };
         }
 
@@ -54,7 +55,7 @@ namespace Taskmaster.Service
             }
             taskItem.Title = request.Title;
             taskItem.Details = request.Details;
-
+            
             _context.SaveChanges();
 
             return new EditTaskItemResponse() {StatusCode = StatusOk, TaskItemId = taskItem.TaskItemId};
