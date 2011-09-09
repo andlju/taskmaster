@@ -14,6 +14,11 @@
 <body>
     <script type="text/javascript">
 
+        function User(userId, name) {
+            this.userId = userId;
+            this.name = ko.observable(name);
+        }
+        
         function Task(taskItemId, title, details, assignedUserId, parentViewModel) {
             this.taskItemId = ko.observable(taskItemId);
             this.title = ko.observable(title);
@@ -29,10 +34,16 @@
                     type: 'POST',
                     url: "/api/tasks",
                     data: ko.toJSON(self),
-                    success: function (status) { alert(status); },
-                    contentType: "application/json"
+                    success: function (result, status) {
+                         self.taskItemId(result);
+                         self.getParentViewModel().selectTask(undefined);
+                     },
+                    contentType: "application/json",
+                    beforeSend: function (jqXhr, settings) {
+                        jqXhr.setRequestHeader('TM-RequestUserId', self.getParentViewModel().loggedOnUser().userId);
+                    }
+
                 });
-                self.getParentViewModel().selectTask(undefined);
             };
 
             this.select = function () {
@@ -42,8 +53,11 @@
         
         function TasksViewModel() {
             this.taskList = ko.observableArray([]);
+            this.userList = ko.observableArray([]);
 
             this.selectedTask = ko.observable();
+            
+            this.loggedOnUser = ko.observable();
 
             var self = this;
 
@@ -54,10 +68,17 @@
                     });
                     self.taskList(tmpList);
                 });
+                
+                $.getJSON('/api/users', {}, function (data, status) {
+                    var tmpList = $.map(data, function (item, no) {
+                        return new User(item.UserId, item.Name);
+                    });
+                    self.userList(tmpList);
+                });
             };
 
             this.addTask = function () {
-                var newTask = new Task(0, "", "Testar", 0, self);
+                var newTask = new Task(0, "", "", self.loggedOnUser().userId, self);
 
                 self.taskList.push(newTask);
                 self.selectedTask(newTask);
@@ -83,7 +104,9 @@
     </header>
 
     <div class="center">
-        <aside id="left"></aside>
+        <aside id="left">
+            <select data-bind="options: userList, optionsText: 'name', value: loggedOnUser"></select>
+        </aside>
         <article>
             <section id="selectionPanel">
                 <ul>
@@ -100,7 +123,12 @@
             </section>
 
             <section id="editPanel">
-                <div data-bind="visible: selectedTask(), template: {name: 'selectedTaskTemplate', foreach: selectedTask}"></div>
+                <div data-bind="template: {
+                                            name: 'selectedTaskTemplate', 
+                                            foreach: selectedTask, 
+                                            afterAdd: function(elem) { $(elem).hide().fadeIn(); },
+                                            beforeRemove: function(elem) { $(elem).fadeOut(); } 
+                                          }"></div>
 
                 <script id="selectedTaskTemplate" type="text/html">
                     <fieldset>

@@ -3,12 +3,11 @@ using System.Collections.Generic;
 
 namespace Taskmaster.Service
 {
-    public class User
+
+    public class TaskComment
     {
-        public int UserId { get; set; }
-
-        public string Name { get; set; }
-
+        public string Comment { get; set; }
+        public int CreatedByUserId { get; set; }
     }
 
     public class TaskItem
@@ -17,12 +16,15 @@ namespace Taskmaster.Service
         public string Title { get; set; }
         public string Details { get; set; }
 
-        public int AssignedUserId { get; set; }
+        public IEnumerable<TaskComment> Comments { get; set; }
+
+        public int CreatedByUserId { get; set; }
+        public int AssignedToUserId { get; set; }
     }
 
     public class RequestBase
     {
-        public int UserId { get; set; }
+        public int RequestUserId { get; set; }
     }
 
     public class ResponseBase
@@ -34,8 +36,6 @@ namespace Taskmaster.Service
     {
         public string Title { get; set; }
         public string Details { get; set; }
-
-        public int AssignedUserId { get; set; }
     }
 
     public class AddTaskItemResponse : ResponseBase
@@ -49,7 +49,7 @@ namespace Taskmaster.Service
         public string Title { get; set; }
         public string Details { get; set; }
 
-        public int AssignedUserId { get; set; }
+        public int? AssignedToUserId { get; set; }
     }
 
     public class EditTaskItemResponse : ResponseBase
@@ -69,7 +69,7 @@ namespace Taskmaster.Service
 
     public class FindTaskItemsByAssignedUserRequest : RequestBase
     {
-        public int AssignedUserId { get; set; }
+        public int AssignedToUserId { get; set; }
     }
 
     public class FindTaskItemsByAssignedUserResponse : ResponseBase

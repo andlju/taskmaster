@@ -13,17 +13,14 @@ namespace Taskmaster.Service
 
         private readonly IObjectContext _context;
         private readonly Domain.ITaskItemRepository _taskItemRepository;
-        private readonly Domain.IUserRepository _userRepository;
-
-
 
         public TaskService(IObjectContext context, Domain.ITaskItemRepository taskItemRepository, Domain.IUserRepository userRepository)
         {
             _context = context;
             _taskItemRepository = taskItemRepository;
-            _userRepository = userRepository;
 
             Mapper.CreateMap<Domain.TaskItem, TaskItem>();
+            Mapper.CreateMap<Domain.TaskComment, TaskComment>();
         }
 
         public AddTaskItemResponse AddTaskItem(AddTaskItemRequest request)
@@ -32,8 +29,7 @@ namespace Taskmaster.Service
                                {
                                    Title = request.Title,
                                    Details = request.Details,
-                                   CreatedById = request.UserId,
-                                   AssignedToId = request.UserId
+                                   CreatedByUserId = request.RequestUserId
                                };
 
             _taskItemRepository.Add(taskItem);
@@ -55,7 +51,8 @@ namespace Taskmaster.Service
             }
             taskItem.Title = request.Title;
             taskItem.Details = request.Details;
-            
+            taskItem.AssignedToUserId = request.AssignedToUserId;
+
             _context.SaveChanges();
 
             return new EditTaskItemResponse() {StatusCode = StatusOk, TaskItemId = taskItem.TaskItemId};
@@ -70,7 +67,7 @@ namespace Taskmaster.Service
 
         public FindTaskItemsByAssignedUserResponse FindTaskItemsByAssignedUser(FindTaskItemsByAssignedUserRequest request)
         {
-            var taskItems = _taskItemRepository.Find(ti => ti.AssignedToId == request.AssignedUserId);
+            var taskItems = _taskItemRepository.Find(ti => ti.AssignedToUserId == request.AssignedToUserId);
 
             return new FindTaskItemsByAssignedUserResponse() { StatusCode = StatusOk, TaskItems = Mapper.Map<IEnumerable<Domain.TaskItem>, List<TaskItem>>(taskItems) };
         }

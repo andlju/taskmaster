@@ -286,7 +286,7 @@ namespace Petite
 		/// <summary>
 		/// This property can be used by derived classes in order to get access to the underlying DbSet
 		/// </summary>
-		protected virtual IDbSet<TEntity> Query
+		protected virtual IQueryable<TEntity> Query
 		{
 			get { return _objectSet; }
 		}
@@ -333,7 +333,7 @@ namespace Petite
 	}
 
 	public static class RepositoryExtensions
-	{
+	{/*
 		public static IQueryable<TSource> Include<TSource>(this IQueryable<TSource> source, string path)
 		{
 			var objectQuery = source as ObjectQuery<TSource>;
@@ -342,6 +342,6 @@ namespace Petite
 				return objectQuery.Include(path);
 			}
 			return source;
-		}
+		}*/
 	}
 }
