@@ -36,6 +36,8 @@ namespace Taskmaster.Service
     {
         public string Title { get; set; }
         public string Details { get; set; }
+
+        public int? AssignedToUserId { get; set; }
     }
 
     public class AddTaskItemResponse : ResponseBase

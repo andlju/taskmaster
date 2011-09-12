@@ -19,11 +19,11 @@
             this.name = ko.observable(name);
         }
         
-        function Task(taskItemId, title, details, assignedUserId, parentViewModel) {
+        function Task(taskItemId, title, details, assignedUser, parentViewModel) {
             this.taskItemId = ko.observable(taskItemId);
             this.title = ko.observable(title);
             this.details = ko.observable(details);
-            this.assignedUserId = ko.observable(assignedUserId);
+            this.assignedUser = ko.observable(assignedUser);
             
             this.getParentViewModel = function() { return parentViewModel; };
 
@@ -61,24 +61,58 @@
 
             var self = this;
 
-            this.refresh = function () {
-                $.getJSON('/api/tasks', {}, function (data, status) {
-                    var tmpList = $.map(data, function (item, no) {
-                        return new Task(item.TaskItemId, item.Title, item.Details, 0, self);
-                    });
-                    self.taskList(tmpList);
-                });
-                
+            this.createTask = function (taskItemId, title, details, assignedUser, parentViewModel) {
+                var task = new Task(taskItemId, title, details, assignedUser, parentViewModel);
+                task.assignedToUserId = ko.dependentObservable(function () {
+                    return this.assignedUser ? this.assignedUser().userId : 0;
+                }, task);
+                return task;
+            };
+
+            this.refreshUserList = function (continueWith) {
+
                 $.getJSON('/api/users', {}, function (data, status) {
                     var tmpList = $.map(data, function (item, no) {
                         return new User(item.UserId, item.Name);
                     });
                     self.userList(tmpList);
+                    
+                    if (continueWith)
+                        continueWith();
                 });
             };
 
+            this.findUserWithId = function (userId) {
+                for (var i = 0; i < self.userList().length; i++) {
+                    var usr = self.userList()[i];
+                    if (usr.userId == userId)
+                        return usr;
+                }
+            };
+            
+            this.refreshTaskList = function (continueWith) {
+                $.getJSON('/api/tasks', {}, function (data, status) {
+                    var tmpList = $.map(data, function (item, no) {
+                        var assignedToUser = self.findUserWithId(item.AssignedToUserId);;
+                        if (!assignedToUser) {
+                            assignedToUser = self.loggedOnUser();
+                        }
+                        return self.createTask(item.TaskItemId, item.Title, item.Details, assignedToUser, self);
+                    });
+                    self.taskList(tmpList);
+
+                    if (continueWith)
+                        continueWith();
+                });
+
+            };
+
+            this.refreshAll = function () {
+                self.refreshUserList(self.refreshTaskList);
+            };
+
             this.addTask = function () {
-                var newTask = new Task(0, "", "", self.loggedOnUser().userId, self);
+                var newTask = self.createTask(0, "", "", self.loggedOnUser(), self);
 
                 self.taskList.push(newTask);
                 self.selectedTask(newTask);
@@ -94,7 +128,7 @@
         $(function () {
 
             ko.applyBindings(viewModel);
-            viewModel.refresh();
+            viewModel.refreshAll();
         });
     
     </script>
@@ -126,6 +160,7 @@
                 <div data-bind="template: {
                                             name: 'selectedTaskTemplate', 
                                             foreach: selectedTask, 
+                                            templateOptions : { userList: userList},
                                             afterAdd: function(elem) { $(elem).hide().fadeIn(); },
                                             beforeRemove: function(elem) { $(elem).fadeOut(); } 
                                           }"></div>
@@ -140,6 +175,10 @@
                         <p>
                         <label for="detailsBox">Details</label>
                         <textarea id="detailsBox" rows="6" columns="50" data-bind="value: details"></textarea>
+                        </p>
+                        <p>
+                        <label for="assignedUser">Assigned user</label>
+                        <select data-bind="options: $item.userList(), optionsText: 'name', value: assignedUser"></select>
                         </p>
                         <p>
                         <a href="#" data-bind="click: update" id="submitLink">Update</a>

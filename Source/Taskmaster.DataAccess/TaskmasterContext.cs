@@ -12,8 +12,9 @@ namespace Taskmaster.DataAccess
         protected override void Seed(TaskmasterContext context)
         {
             var defaultUser = new User() { Name = "Guest" };
-            
+            var testUser = new User() {Name = "Test"};
             context.UserItems.Add(defaultUser);
+            context.UserItems.Add(testUser);
             
             context.SaveChanges();
         }

@@ -29,7 +29,8 @@ namespace Taskmaster.Service
                                {
                                    Title = request.Title,
                                    Details = request.Details,
-                                   CreatedByUserId = request.RequestUserId
+                                   CreatedByUserId = request.RequestUserId,
+                                   AssignedToUserId = request.AssignedToUserId,
                                };
 
             _taskItemRepository.Add(taskItem);
