@@ -59,6 +59,21 @@ namespace Taskmaster.Service
             return new EditTaskItemResponse() {StatusCode = StatusOk, TaskItemId = taskItem.TaskItemId};
         }
 
+        public AddCommentResponse AddComment(AddCommentRequest request)
+        {
+            var taskItem = _taskItemRepository.Get(ti => ti.TaskItemId == request.TaskItemId);
+            if (taskItem == null)
+            {
+                return new AddCommentResponse() { StatusCode = StatusNotFound };
+            }
+            var comment = new Domain.TaskComment() {Comment = request.Comment, CreatedByUserId = request.RequestUserId};
+            taskItem.Comments.Add(comment);
+
+            _context.SaveChanges();
+
+            return new AddCommentResponse() { StatusCode = StatusOk, CommentId = comment.TaskCommentId};
+        }
+
         public FindTaskItemsByNameResponse FindTaskItemsByName(FindTaskItemsByNameRequest request)
         {
             var taskItems = _taskItemRepository.Find(ti => ti.Title.Contains(request.Query));

@@ -6,6 +6,7 @@ namespace Taskmaster.Service
 
     public class TaskComment
     {
+        public int? CommentId { get; set; }
         public string Comment { get; set; }
         public int CreatedByUserId { get; set; }
     }
@@ -79,10 +80,23 @@ namespace Taskmaster.Service
         public List<TaskItem> TaskItems { get; set; }
     }
 
+    public class AddCommentRequest : RequestBase
+    {
+        public int TaskItemId { get; set; }
+        public string Comment { get; set; }
+    }
+
+    public class AddCommentResponse : ResponseBase
+    {
+        public int CommentId { get; set; }
+    }
+
     public interface ITaskService
     {
         AddTaskItemResponse AddTaskItem(AddTaskItemRequest request);
         EditTaskItemResponse EditTaskItem(EditTaskItemRequest request);
+
+        AddCommentResponse AddComment(AddCommentRequest request);
 
         FindTaskItemsByNameResponse FindTaskItemsByName(FindTaskItemsByNameRequest request);
         FindTaskItemsByAssignedUserResponse FindTaskItemsByAssignedUser(FindTaskItemsByAssignedUserRequest request);

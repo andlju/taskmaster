@@ -19,12 +19,38 @@
             this.name = ko.observable(name);
         }
         
-        function Task(taskItemId, title, details, assignedUser, parentViewModel) {
+        function Comment(commentId, comment, createdByUser) {
+            this.commentId = ko.observable(commentId);
+            this.comment = ko.observable(comment);
+            this.createdByUser = ko.observable(createdByUser);
+
+            var self = this;
+            
+            this.update = function() {
+                $.ajax({
+                    type: 'POST',
+                    url: "/api/tasks/comments",
+                    data: ko.toJSON(self),
+                    success: function (result, status) {
+                        self.commentId(result);
+                    },
+                    contentType: "application/json",
+                    beforeSend: function (jqXhr, settings) {
+                        jqXhr.setRequestHeader('TM-RequestUserId', self.getParentViewModel().loggedOnUser().userId);
+                    }
+
+                });
+            };
+        }
+        
+        function Task(taskItemId, title, details, assignedUser, parentViewModel, comments) {
             this.taskItemId = ko.observable(taskItemId);
             this.title = ko.observable(title);
             this.details = ko.observable(details);
             this.assignedUser = ko.observable(assignedUser);
-            
+
+            this.commentsList = ko.observableArray(comments);
+
             this.getParentViewModel = function() { return parentViewModel; };
 
             var self = this;
@@ -54,19 +80,26 @@
         function TasksViewModel() {
             this.taskList = ko.observableArray([]);
             this.userList = ko.observableArray([]);
-
             this.selectedTask = ko.observable();
             
             this.loggedOnUser = ko.observable();
 
             var self = this;
 
-            this.createTask = function (taskItemId, title, details, assignedUser, parentViewModel) {
-                var task = new Task(taskItemId, title, details, assignedUser, parentViewModel);
+            this.createTask = function (taskItemId, title, details, assignedUser, parentViewModel, comments) {
+                var task = new Task(taskItemId, title, details, assignedUser, parentViewModel, comments);
                 task.assignedToUserId = ko.dependentObservable(function () {
                     return this.assignedUser ? this.assignedUser().userId : 0;
                 }, task);
                 return task;
+            };
+
+            this.findUserWithId = function (userId) {
+                for (var i = 0; i < self.userList().length; i++) {
+                    var usr = self.userList()[i];
+                    if (usr.userId == userId)
+                        return usr;
+                }
             };
 
             this.refreshUserList = function (continueWith) {
@@ -82,22 +115,17 @@
                 });
             };
 
-            this.findUserWithId = function (userId) {
-                for (var i = 0; i < self.userList().length; i++) {
-                    var usr = self.userList()[i];
-                    if (usr.userId == userId)
-                        return usr;
-                }
-            };
-            
             this.refreshTaskList = function (continueWith) {
                 $.getJSON('/api/tasks', {}, function (data, status) {
                     var tmpList = $.map(data, function (item, no) {
-                        var assignedToUser = self.findUserWithId(item.AssignedToUserId);;
+                        var assignedToUser = self.findUserWithId(item.AssignedToUserId); ;
                         if (!assignedToUser) {
                             assignedToUser = self.loggedOnUser();
                         }
-                        return self.createTask(item.TaskItemId, item.Title, item.Details, assignedToUser, self);
+                        var comments = $.map(item.Comments, function (commentItem, commentNo) {
+                            return new Comment(commentItem.CommentId, commentItem.Comment, self.findUserWithId(commentItem.CreatedByUserId));
+                        });
+                        return self.createTask(item.TaskItemId, item.Title, item.Details, assignedToUser, self, comments);
                     });
                     self.taskList(tmpList);
 
@@ -148,9 +176,16 @@
                 </ul>
 
                 <script id="taskListItemTemplate" type="text/html">
-                    <li><a href="#" data-bind="click: select, text: title"></a></li>
+                    <li class="task">
+                        <a href="#" data-bind="click: select, text: title"></a>
+                        <div data-bind="template: {name: 'commentTemplate', foreach: commentsList}"></div>
+                    </li>
                 </script>
-
+                <script id="commentTemplate" type="text/html">
+                    <div class="comment">
+                        <span data-bind="text: comment"></span>
+                    </div>
+                </script>
                 <p>
                     <a href="#" data-bind="click: addTask" id="addTask">Add</a>
                 </p>
