@@ -32,6 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -40,9 +41,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IdentityMapping.cs" />
+    <Compile Include="IIdentityLookup.cs" />
+    <Compile Include="ITaskItemRepository.cs" />
+    <Compile Include="IUserRepository.cs" />
     <Compile Include="Petite.Repository.Domain.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TaskComment.cs" />
     <Compile Include="TaskItem.cs" />
+    <Compile Include="User.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

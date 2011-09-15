@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IdentityLookup.cs" />
     <Compile Include="Petite.Repository.Data.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TaskmasterContext.cs" />

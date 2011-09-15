@@ -19,12 +19,14 @@ namespace Taskmaster.DataAccess
             context.SaveChanges();
         }
     }
-
+    
     public class TaskmasterContext : DbContext
     {
         public IDbSet<TaskItem> TaskItems { get; set; }
 
         public IDbSet<User> UserItems { get; set; }
+
+        public IDbSet<IdentityMapping> IdentityMappings { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

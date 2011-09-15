@@ -43,6 +43,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandHandlers\AddCommentCommandHandler.cs" />
+    <Compile Include="Commands\AddCommentCommand.cs" />
+    <Compile Include="CommandHandlers\AddTaskItemCommandHandler.cs" />
+    <Compile Include="CommandHandlers\EditTaskItemCommandHandler.cs" />
+    <Compile Include="CommandHandlers\ICommandHandler.cs" />
+    <Compile Include="Commands\AddTaskItemCommand.cs" />
+    <Compile Include="Commands\EditTaskItemCommand.cs" />
     <Compile Include="ITaskService.cs" />
     <Compile Include="IUserService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -58,6 +65,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
