@@ -54,6 +54,7 @@
     <Compile Include="AddComment\When_Handling_AddCommentCommand.cs" />
     <Compile Include="AddTaskItem\When_Handling_AddTaskItemCommand_With_Assigned_User.cs" />
     <Compile Include="AddTaskItem\When_Handling_AddTaskItemCommand_With_No_Assigned_User.cs" />
+    <Compile Include="AddUser\When_Handling_AddUserCommand.cs" />
     <Compile Include="EditTaskItem\When_Handling_EditTaskItemCommand_With_AssignedUser.cs" />
     <Compile Include="EditTaskItem\When_Handling_EditTaskItemCommand_With_No_AssignedUser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

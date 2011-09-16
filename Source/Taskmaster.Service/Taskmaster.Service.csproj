@@ -43,12 +43,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bus\ICommandBus.cs" />
     <Compile Include="CommandHandlers\AddCommentCommandHandler.cs" />
+    <Compile Include="CommandHandlers\AddUserCommandHandler.cs" />
     <Compile Include="Commands\AddCommentCommand.cs" />
     <Compile Include="CommandHandlers\AddTaskItemCommandHandler.cs" />
     <Compile Include="CommandHandlers\EditTaskItemCommandHandler.cs" />
     <Compile Include="CommandHandlers\ICommandHandler.cs" />
     <Compile Include="Commands\AddTaskItemCommand.cs" />
+    <Compile Include="Commands\AddUserCommand.cs" />
     <Compile Include="Commands\EditTaskItemCommand.cs" />
     <Compile Include="ITaskService.cs" />
     <Compile Include="IUserService.cs" />

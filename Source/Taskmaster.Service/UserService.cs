@@ -1,6 +1,9 @@
+using System;
 using System.Linq;
 using Petite;
 using Taskmaster.Domain;
+using Taskmaster.Service.Bus;
+using Taskmaster.Service.Commands;
 
 namespace Taskmaster.Service
 {
@@ -10,26 +13,28 @@ namespace Taskmaster.Service
         public const int StatusNotFound = 1;
 
         private readonly IUserRepository _userRepository;
-        private readonly IObjectContext _context;
+        private readonly ICommandBus _commandBus;
+        private readonly IIdentityLookup _identityLookup;
 
-        public UserService(IUserRepository userRepository, IObjectContext context)
+        public UserService(IUserRepository userRepository, ICommandBus commandBus, IIdentityLookup identityLookup)
         {
             _userRepository = userRepository;
-            _context = context;
+            _commandBus = commandBus;
+            _identityLookup = identityLookup;
         }
 
         public AddUserResponse AddUser(AddUserRequest request)
         {
-            var user = new Domain.User() { Name = request.Name };
+            var userAggregateId = Guid.NewGuid();
             
-            _userRepository.Add(user);
+            _commandBus.Publish(new AddUserCommand(userAggregateId, request.Name));
 
-            _context.SaveChanges();
+            var userModelId = _identityLookup.GetModelId<Domain.User>(userAggregateId);
 
             return new AddUserResponse()
                        {
                            StatusCode = StatusOk,
-                           UserId = user.UserId
+                           UserId = userModelId
                        };
         }
 

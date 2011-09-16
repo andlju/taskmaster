@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using AutoMapper;
-using Petite;
+using Taskmaster.Domain;
+using Taskmaster.Service.Bus;
+using Taskmaster.Service.Commands;
 
 namespace Taskmaster.Service
 {
@@ -11,13 +12,16 @@ namespace Taskmaster.Service
         public const int StatusOk = 0;
         public const int StatusNotFound = 1;
 
-        private readonly IObjectContext _context;
-        private readonly Domain.ITaskItemRepository _taskItemRepository;
+        private readonly ITaskItemRepository _taskItemRepository;
 
-        public TaskService(IObjectContext context, Domain.ITaskItemRepository taskItemRepository, Domain.IUserRepository userRepository)
+        private readonly ICommandBus _commandBus;
+        private readonly IIdentityLookup _identityLookup;
+
+        public TaskService(ITaskItemRepository taskItemRepository, ICommandBus commandBus, IIdentityLookup identityLookup)
         {
-            _context = context;
             _taskItemRepository = taskItemRepository;
+            _commandBus = commandBus;
+            _identityLookup = identityLookup;
 
             Mapper.CreateMap<Domain.TaskItem, TaskItem>();
             Mapper.CreateMap<Domain.TaskComment, TaskComment>();
@@ -25,53 +29,56 @@ namespace Taskmaster.Service
 
         public AddTaskItemResponse AddTaskItem(AddTaskItemRequest request)
         {
-            var taskItem = new Domain.TaskItem()
-                               {
-                                   Title = request.Title,
-                                   Details = request.Details,
-                                   CreatedByUserId = request.RequestUserId,
-                                   AssignedToUserId = request.AssignedToUserId,
-                               };
+            var taskItemAggregateId = Guid.NewGuid();
 
-            _taskItemRepository.Add(taskItem);
-            _context.SaveChanges();
+            Guid? assignedUserAggregateId = GetUserAggregateId(request.AssignedToUserId);
+
+            _commandBus.Publish(new AddTaskItemCommand(taskItemAggregateId, request.Title, request.Details, assignedUserAggregateId));
+
+            int taskItemModelId = _identityLookup.GetModelId<Domain.TaskItem>(taskItemAggregateId);
 
             return new AddTaskItemResponse()
                        {
                            StatusCode = StatusOk,
-                           TaskItemId = taskItem.TaskItemId,
+                           TaskItemId = taskItemModelId,
                        };
         }
 
         public EditTaskItemResponse EditTaskItem(EditTaskItemRequest request)
         {
-            var taskItem = _taskItemRepository.Get(ti => ti.TaskItemId == request.TaskItemId);
-            if (taskItem == null)
+            Guid taskItemAggregateId = _identityLookup.GetAggregateId<Domain.TaskItem>(request.TaskItemId);
+
+            Guid? assignedUserAggregateId = GetUserAggregateId(request.AssignedToUserId);
+
+            _commandBus.Publish(new EditTaskItemCommand(taskItemAggregateId, request.Title, request.Details, assignedUserAggregateId));
+
+            return new EditTaskItemResponse()
             {
-                return new EditTaskItemResponse() {StatusCode = StatusNotFound};
-            }
-            taskItem.Title = request.Title;
-            taskItem.Details = request.Details;
-            taskItem.AssignedToUserId = request.AssignedToUserId;
-
-            _context.SaveChanges();
-
-            return new EditTaskItemResponse() {StatusCode = StatusOk, TaskItemId = taskItem.TaskItemId};
+                StatusCode = StatusOk,
+                TaskItemId = request.TaskItemId,
+            };
         }
 
         public AddCommentResponse AddComment(AddCommentRequest request)
         {
-            var taskItem = _taskItemRepository.Get(ti => ti.TaskItemId == request.TaskItemId);
-            if (taskItem == null)
-            {
-                return new AddCommentResponse() { StatusCode = StatusNotFound };
-            }
-            var comment = new Domain.TaskComment() {Comment = request.Comment, CreatedByUserId = request.RequestUserId};
-            taskItem.Comments.Add(comment);
+            Guid taskItemAggregateId = _identityLookup.GetAggregateId<Domain.TaskItem>(request.TaskItemId);
+            Guid commentId = Guid.NewGuid();
 
-            _context.SaveChanges();
+            _commandBus.Publish(new AddCommentCommand(taskItemAggregateId, commentId, request.Comment));
 
-            return new AddCommentResponse() { StatusCode = StatusOk, CommentId = comment.TaskCommentId};
+            int commentModelId = _identityLookup.GetModelId<Domain.TaskComment>(commentId);
+
+
+            return new AddCommentResponse()
+                       {
+                           StatusCode = StatusOk, 
+                           CommentId = commentModelId
+                       };
+        }
+
+        private Guid? GetUserAggregateId(int? userId)
+        {
+            return userId != null ? _identityLookup.GetAggregateId<Domain.User>(userId.Value) : (Guid?)null;
         }
 
         public FindTaskItemsByNameResponse FindTaskItemsByName(FindTaskItemsByNameRequest request)

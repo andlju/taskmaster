@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Objects;
 using System.Linq;
@@ -16,6 +17,23 @@ namespace Taskmaster.DataAccess
             context.UserItems.Add(defaultUser);
             context.UserItems.Add(testUser);
             
+            context.SaveChanges();
+
+            // Need to create mappings for the two standard users
+            context.IdentityMappings.Add(new IdentityMapping()
+            {
+                AggregateType = "User",
+                AggregateId = Guid.NewGuid(),
+                ModelId = defaultUser.UserId
+            });
+
+            context.IdentityMappings.Add(new IdentityMapping()
+            {
+                AggregateType = "User",
+                AggregateId = Guid.NewGuid(),
+                ModelId = testUser.UserId
+            });
+
             context.SaveChanges();
         }
     }
