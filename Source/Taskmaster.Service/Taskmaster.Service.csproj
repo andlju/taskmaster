@@ -53,6 +53,10 @@
     <Compile Include="Commands\AddTaskItemCommand.cs" />
     <Compile Include="Commands\AddUserCommand.cs" />
     <Compile Include="Commands\EditTaskItemCommand.cs" />
+    <Compile Include="Events\CommentAddedEvent.cs" />
+    <Compile Include="Events\TaskItemAddedEvent.cs" />
+    <Compile Include="Events\TaskItemEditedEvent.cs" />
+    <Compile Include="Events\UserAddedEvent.cs" />
     <Compile Include="ITaskService.cs" />
     <Compile Include="IUserService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
