@@ -4,33 +4,29 @@ using Taskmaster.Service.Commands;
 
 namespace Taskmaster.Service.CommandHandlers
 {
-    public class AddTaskItemCommandHandler : ICommandHandler<AddTaskItemCommand>
+    public class AddTaskItemCommandHandler : CommandHandlerBase, ICommandHandler<AddTaskItemCommand>
     {
         private readonly ITaskItemRepository _taskItemRepository;
         private readonly IObjectContext _objectContext;
-        private readonly IIdentityLookup _identityLookup;
 
         public AddTaskItemCommandHandler(ITaskItemRepository taskItemRepository, IObjectContext objectContext, IIdentityLookup identityLookup)
+            : base(identityLookup)
         {
             _taskItemRepository = taskItemRepository;
             _objectContext = objectContext;
-            _identityLookup = identityLookup;
         }
 
         public void Handle(AddTaskItemCommand command)
         {
-            int? assignedToUserModelId = null;
-            if (command.AssignedUserAggregateId != null)
-            {
-                assignedToUserModelId = _identityLookup.GetModelId<Domain.User>(command.AssignedUserAggregateId.Value);
-            }
+            int createdByUserModelId = GetUserModelId(command.AuthenticatedUserId).Value;
+            int? assignedToUserModelId = GetUserModelId(command.AssignedUserAggregateId);
 
             var taskItem = new Domain.TaskItem()
                                {
-                                   CreatedByUserId = 1,
+                                   CreatedByUserId = createdByUserModelId,
                                    Title = command.Title,
                                    Details = command.Details,
-                                   AssignedToUserId = assignedToUserModelId
+                                   AssignedToUserId = assignedToUserModelId,
                                };
             _taskItemRepository.Add(taskItem);
 
@@ -38,5 +34,6 @@ namespace Taskmaster.Service.CommandHandlers
 
             _identityLookup.StoreMapping<Domain.TaskItem>(command.TaskItemAggregateId, taskItem.TaskItemId);
         }
+
     }
 }

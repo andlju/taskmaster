@@ -4,17 +4,15 @@ using Taskmaster.Service.Commands;
 
 namespace Taskmaster.Service.CommandHandlers
 {
-    public class AddUserCommandHandler : ICommandHandler<AddUserCommand>
+    public class AddUserCommandHandler : CommandHandlerBase, ICommandHandler<AddUserCommand>
     {
         private IUserRepository _userRepository;
         private IObjectContext _objectContext;
-        private IIdentityLookup _identityLookup;
 
-        public AddUserCommandHandler(IUserRepository userRepository, IObjectContext objectContext, IIdentityLookup identityLookup)
+        public AddUserCommandHandler(IUserRepository userRepository, IObjectContext objectContext, IIdentityLookup identityLookup) : base(identityLookup)
         {
             _userRepository = userRepository;
             _objectContext = objectContext;
-            _identityLookup = identityLookup;
         }
 
         public void Handle(AddUserCommand command)

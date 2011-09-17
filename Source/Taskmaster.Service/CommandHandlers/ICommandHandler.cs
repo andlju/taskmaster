@@ -1,4 +1,6 @@
-﻿namespace Taskmaster.Service.CommandHandlers
+﻿using System;
+
+namespace Taskmaster.Service.CommandHandlers
 {
     public interface ICommandHandler<T>
     {

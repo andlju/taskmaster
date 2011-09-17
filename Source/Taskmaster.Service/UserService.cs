@@ -26,8 +26,8 @@ namespace Taskmaster.Service
         public AddUserResponse AddUser(AddUserRequest request)
         {
             var userAggregateId = Guid.NewGuid();
-            
-            _commandBus.Publish(new AddUserCommand(userAggregateId, request.Name));
+
+            _commandBus.Publish(new AddUserCommand(GetUserAggregateId(request.RequestUserId).Value, userAggregateId, request.Name));
 
             var userModelId = _identityLookup.GetModelId<Domain.User>(userAggregateId);
 
@@ -47,6 +47,11 @@ namespace Taskmaster.Service
                            StatusCode = StatusOk,
                            Users = users
                        };
+        }
+
+        private Guid? GetUserAggregateId(int? userId)
+        {
+            return userId != null ? _identityLookup.GetAggregateId<Domain.User>(userId.Value) : (Guid?)null;
         }
     }
 }

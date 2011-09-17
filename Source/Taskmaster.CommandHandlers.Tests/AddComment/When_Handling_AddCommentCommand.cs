@@ -28,6 +28,8 @@ namespace Taskmaster.CommandHandlers.Tests.AddComment
             _identityLookup = A.Fake<IIdentityLookup>();
             _objectContext = A.Fake<IObjectContext>();
 
+            A.CallTo(() => _identityLookup.GetModelId<User>(_authenticatedUserId)).Returns(17);
+
             _taskItem = new TaskItem()
                             {
                                 Comments = new Collection<TaskComment>()
@@ -44,7 +46,7 @@ namespace Taskmaster.CommandHandlers.Tests.AddComment
 
         protected override AddCommentCommand When()
         {
-            return new AddCommentCommand(_taskItemAggregateId, _commentId, "My new comment");
+            return new AddCommentCommand(_authenticatedUserId, _taskItemAggregateId, _commentId, "My new comment");
         }
 
         [TestMethod]

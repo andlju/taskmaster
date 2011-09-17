@@ -28,6 +28,7 @@ namespace Taskmaster.CommandHandlers.Tests.EditTaskItem
 
             A.CallTo(() => _identityLookup.GetModelId<User>(_assignedUserAggregateId)).Returns(42);
             A.CallTo(() => _identityLookup.GetModelId<TaskItem>(_taskItemAggregateId)).Returns(1337);
+            A.CallTo(() => _identityLookup.GetModelId<User>(_authenticatedUserId)).Returns(19);
 
             _taskItem = new TaskItem()
                             {
@@ -47,7 +48,7 @@ namespace Taskmaster.CommandHandlers.Tests.EditTaskItem
 
         protected override EditTaskItemCommand When()
         {
-            return new EditTaskItemCommand(_taskItemAggregateId, "Changed title", "Changed details", _assignedUserAggregateId);
+            return new EditTaskItemCommand(_authenticatedUserId, _taskItemAggregateId, "Changed title", "Changed details", _assignedUserAggregateId);
         }
 
         [TestMethod]

@@ -10,6 +10,9 @@ namespace Taskmaster.CommandHandlers.Tests
         protected abstract ICommandHandler<T> Given();
         protected abstract T When();
 
+        protected Guid _authenticatedUserId = Guid.NewGuid();
+
+
         protected Exception ThrownException { get; private set; }
 
         [TestInitialize]
