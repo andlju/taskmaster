@@ -25,6 +25,8 @@ namespace Taskmaster.CommandHandlers.Tests.AddUser
             _objectContext = A.Fake<IObjectContext>();
             _identityLookup = A.Fake<IIdentityLookup>();
 
+            A.CallTo(() => _identityLookup.GetModelId<User>(_authenticatedUserId)).Returns(1);
+
             A.CallTo(() => _userRepository.Add(null)).WithAnyArguments().Invokes(c =>
                                                                                      {
                                                                                          _user = c.GetArgument<User>(0);
@@ -36,7 +38,7 @@ namespace Taskmaster.CommandHandlers.Tests.AddUser
 
         protected override AddUserCommand When()
         {
-            return new AddUserCommand(_userAggregateId, "Test user");
+            return new AddUserCommand(_authenticatedUserId, _userAggregateId, "Test user");
         }
 
         [TestMethod]

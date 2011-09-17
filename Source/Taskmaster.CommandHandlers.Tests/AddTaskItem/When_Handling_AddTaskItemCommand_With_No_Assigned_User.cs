@@ -25,6 +25,8 @@ namespace Taskmaster.CommandHandlers.Tests.AddTaskItem
             _identityLookup = A.Fake<IIdentityLookup>();
             _objectContext = A.Fake<IObjectContext>();
 
+            A.CallTo(() => _identityLookup.GetModelId<User>(_authenticatedUserId)).Returns(17);
+
             A.CallTo(() => _taskItemRepository.Add(null)).WithAnyArguments().Invokes(
                 c =>
                     {
@@ -37,7 +39,7 @@ namespace Taskmaster.CommandHandlers.Tests.AddTaskItem
 
         protected override AddTaskItemCommand When()
         {
-            return new AddTaskItemCommand(_taskItemAggregateId, "Test title", "Test details", null);
+            return new AddTaskItemCommand(_authenticatedUserId, _taskItemAggregateId, "Test title", "Test details", null);
         }
 
         [TestMethod]

@@ -46,6 +46,7 @@
     <Compile Include="Bus\ICommandBus.cs" />
     <Compile Include="CommandHandlers\AddCommentCommandHandler.cs" />
     <Compile Include="CommandHandlers\AddUserCommandHandler.cs" />
+    <Compile Include="CommandHandlers\CommandHandlerBase.cs" />
     <Compile Include="Commands\AddCommentCommand.cs" />
     <Compile Include="CommandHandlers\AddTaskItemCommandHandler.cs" />
     <Compile Include="CommandHandlers\EditTaskItemCommandHandler.cs" />

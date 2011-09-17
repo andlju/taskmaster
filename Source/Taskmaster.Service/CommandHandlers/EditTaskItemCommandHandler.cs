@@ -4,29 +4,24 @@ using Taskmaster.Service.Commands;
 
 namespace Taskmaster.Service.CommandHandlers
 {
-    public class EditTaskItemCommandHandler : ICommandHandler<EditTaskItemCommand>
+    public class EditTaskItemCommandHandler : CommandHandlerBase, ICommandHandler<EditTaskItemCommand>
     {
 
         private readonly ITaskItemRepository _taskItemRepository;
         private readonly IObjectContext _objectContext;
-        private readonly IIdentityLookup _identityLookup;
 
-        public EditTaskItemCommandHandler(ITaskItemRepository taskItemRepository, IObjectContext objectContext, IIdentityLookup identityLookup)
+        public EditTaskItemCommandHandler(ITaskItemRepository taskItemRepository, IObjectContext objectContext, IIdentityLookup identityLookup) : 
+            base(identityLookup)
         {
             _taskItemRepository = taskItemRepository;
             _objectContext = objectContext;
-            _identityLookup = identityLookup;
         }
 
         public void Handle(EditTaskItemCommand command)
         {
             var taskItemIdModel = _identityLookup.GetModelId<Domain.TaskItem>(command.TaskItemAggregateId);
 
-            int? assignedToUserModelId = null;
-            if (command.AssignedUserAggregateId != null)
-            {
-                assignedToUserModelId = _identityLookup.GetModelId<Domain.User>(command.AssignedUserAggregateId.Value);
-            }
+            int? assignedToUserModelId = GetUserModelId(command.AssignedUserAggregateId);
 
             var taskItem = _taskItemRepository.Get(t => t.TaskItemId == taskItemIdModel);
 
