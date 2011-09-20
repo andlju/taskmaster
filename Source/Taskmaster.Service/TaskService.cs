@@ -78,14 +78,22 @@ namespace Taskmaster.Service
         {
             var taskItems = _taskItemRepository.Find(ti => ti.Title.Contains(request.Query));
             
-            return new FindTaskItemsByNameResponse() {StatusCode = StatusOk, TaskItems = Mapper.Map<IEnumerable<Domain.TaskItem>, List<TaskItem>>(taskItems)};
+            return new FindTaskItemsByNameResponse()
+                       {
+                           StatusCode = StatusOk, 
+                           TaskItems = Mapper.Map<IEnumerable<Domain.TaskItem>, List<TaskItem>>(taskItems)
+                       };
         }
 
         public FindTaskItemsByAssignedUserResponse FindTaskItemsByAssignedUser(FindTaskItemsByAssignedUserRequest request)
         {
             var taskItems = _taskItemRepository.Find(ti => ti.AssignedToUserId == request.AssignedToUserId);
 
-            return new FindTaskItemsByAssignedUserResponse() { StatusCode = StatusOk, TaskItems = Mapper.Map<IEnumerable<Domain.TaskItem>, List<TaskItem>>(taskItems) };
+            return new FindTaskItemsByAssignedUserResponse()
+                       {
+                           StatusCode = StatusOk, 
+                           TaskItems = Mapper.Map<IEnumerable<Domain.TaskItem>, List<TaskItem>>(taskItems)
+                       };
         }
     }
 }
