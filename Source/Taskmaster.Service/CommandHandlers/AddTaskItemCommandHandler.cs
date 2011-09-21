@@ -18,7 +18,7 @@ namespace Taskmaster.Service.CommandHandlers
 
         public void Handle(AddTaskItemCommand command)
         {
-            int createdByUserModelId = GetUserModelId(command.AuthenticatedUserId).Value;
+            int createdByUserModelId = GetUserModelId(command.AuthenticatedUserId).GetValueOrDefault();
             int? assignedToUserModelId = GetUserModelId(command.AssignedUserAggregateId);
 
             var taskItem = new Domain.TaskItem()
