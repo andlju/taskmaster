@@ -2,7 +2,7 @@
 
 namespace Taskmaster.Service.Events
 {
-    public class TaskItemEditedEvent
+    public class TaskItemEditedEvent : IEvent
     {
         public readonly Guid TaskItemAggregateId;
         public readonly string Title;
@@ -15,6 +15,11 @@ namespace Taskmaster.Service.Events
             Title = title;
             Details = details;
             AssignedUserAggregateId = assignedUserAggregateId;
+        }
+
+        public Guid AggregateId
+        {
+            get { return TaskItemAggregateId; }
         }
     }
 }

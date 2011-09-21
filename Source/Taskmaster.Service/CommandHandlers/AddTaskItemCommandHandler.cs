@@ -1,6 +1,8 @@
 ﻿using Petite;
 using Taskmaster.Domain;
 using Taskmaster.Service.Commands;
+using Taskmaster.Service.Events;
+using Taskmaster.Service.Infrastructure;
 
 namespace Taskmaster.Service.CommandHandlers
 {
@@ -9,8 +11,8 @@ namespace Taskmaster.Service.CommandHandlers
         private readonly ITaskItemRepository _taskItemRepository;
         private readonly IObjectContext _objectContext;
 
-        public AddTaskItemCommandHandler(ITaskItemRepository taskItemRepository, IObjectContext objectContext, IIdentityLookup identityLookup)
-            : base(identityLookup)
+        public AddTaskItemCommandHandler(ITaskItemRepository taskItemRepository, IObjectContext objectContext, IIdentityLookup identityLookup, IEventStorage storage)
+            : base(identityLookup, storage)
         {
             _taskItemRepository = taskItemRepository;
             _objectContext = objectContext;
@@ -32,7 +34,9 @@ namespace Taskmaster.Service.CommandHandlers
 
             _objectContext.SaveChanges();
 
-            _identityLookup.StoreMapping<Domain.TaskItem>(command.TaskItemAggregateId, taskItem.TaskItemId);
+            IdentityLookup.StoreMapping<Domain.TaskItem>(command.TaskItemAggregateId, taskItem.TaskItemId);
+
+            Store(new TaskItemAddedEvent(command.TaskItemAggregateId, command.Title, command.Details, command.AssignedUserAggregateId));
         }
 
     }

@@ -6,8 +6,8 @@ using Petite;
 using Taskmaster.DataAccess;
 using Taskmaster.Domain;
 using Taskmaster.Service;
-using Taskmaster.Service.Bus;
 using Taskmaster.Service.CommandHandlers;
+using Taskmaster.Service.Infrastructure;
 using TinyIoC;
 
 namespace Taskmaster.Web
@@ -39,19 +39,23 @@ namespace Taskmaster.Web
 
             container.Register<IIdentityLookup>((c, p) => new IdentityLookup(new TaskmasterContext()));
 
+            container.Register<IEventStorage>((c, p) => new EventStoreStorage(new EventBus()));
+            
             container.Register<ICommandBus>((c, p) =>
                                                 {
-                                                    // TODO Should find a better way than recreating the bus on every request for it...
+                                                    // TODO Should find a better way than recreating the buses on every request for it...
                                                     var bus = new CommandBus();
+
                                                     var taskRepo = c.Resolve<ITaskItemRepository>();
                                                     var userRepo = c.Resolve<IUserRepository>();
                                                     var objContext = c.Resolve<IObjectContext>();
                                                     var idLookup = c.Resolve<IIdentityLookup>();
+                                                    var storage = c.Resolve<IEventStorage>();
 
-                                                    bus.RegisterHandler(new AddTaskItemCommandHandler(taskRepo, objContext, idLookup));
-                                                    bus.RegisterHandler(new EditTaskItemCommandHandler(taskRepo, objContext, idLookup));
-                                                    bus.RegisterHandler(new AddCommentCommandHandler(taskRepo, objContext, idLookup));
-                                                    bus.RegisterHandler(new AddUserCommandHandler(userRepo, objContext, idLookup));
+                                                    bus.RegisterHandler(new AddTaskItemCommandHandler(taskRepo, objContext, idLookup, storage));
+                                                    bus.RegisterHandler(new EditTaskItemCommandHandler(taskRepo, objContext, idLookup, storage));
+                                                    bus.RegisterHandler(new AddCommentCommandHandler(taskRepo, objContext, idLookup, storage));
+                                                    bus.RegisterHandler(new AddUserCommandHandler(userRepo, objContext, idLookup, storage));
 
                                                     return bus;
                                                 });

@@ -1,6 +1,8 @@
 ﻿using Petite;
 using Taskmaster.Domain;
 using Taskmaster.Service.Commands;
+using Taskmaster.Service.Events;
+using Taskmaster.Service.Infrastructure;
 
 namespace Taskmaster.Service.CommandHandlers
 {
@@ -10,8 +12,8 @@ namespace Taskmaster.Service.CommandHandlers
         private readonly ITaskItemRepository _taskItemRepository;
         private readonly IObjectContext _objectContext;
 
-        public EditTaskItemCommandHandler(ITaskItemRepository taskItemRepository, IObjectContext objectContext, IIdentityLookup identityLookup) : 
-            base(identityLookup)
+        public EditTaskItemCommandHandler(ITaskItemRepository taskItemRepository, IObjectContext objectContext, IIdentityLookup identityLookup, IEventStorage storage) :
+            base(identityLookup, storage)
         {
             _taskItemRepository = taskItemRepository;
             _objectContext = objectContext;
@@ -19,7 +21,7 @@ namespace Taskmaster.Service.CommandHandlers
 
         public void Handle(EditTaskItemCommand command)
         {
-            var taskItemIdModel = _identityLookup.GetModelId<Domain.TaskItem>(command.TaskItemAggregateId);
+            var taskItemIdModel = IdentityLookup.GetModelId<Domain.TaskItem>(command.TaskItemAggregateId);
 
             int? assignedToUserModelId = GetUserModelId(command.AssignedUserAggregateId);
 
@@ -30,6 +32,8 @@ namespace Taskmaster.Service.CommandHandlers
             taskItem.AssignedToUserId = assignedToUserModelId;
 
             _objectContext.SaveChanges();
+
+            Store(new TaskItemEditedEvent(command.TaskItemAggregateId, command.Title, command.Details, command.AssignedUserAggregateId));
         }
     }
 }

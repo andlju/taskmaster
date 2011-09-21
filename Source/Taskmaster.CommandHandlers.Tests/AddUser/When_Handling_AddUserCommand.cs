@@ -5,6 +5,8 @@ using Petite;
 using Taskmaster.Domain;
 using Taskmaster.Service.CommandHandlers;
 using Taskmaster.Service.Commands;
+using Taskmaster.Service.Events;
+using Taskmaster.Service.Infrastructure;
 
 namespace Taskmaster.CommandHandlers.Tests.AddUser
 {
@@ -19,7 +21,7 @@ namespace Taskmaster.CommandHandlers.Tests.AddUser
 
         private Guid _userAggregateId = Guid.NewGuid();
 
-        protected override ICommandHandler<AddUserCommand> Given()
+        protected override ICommandHandler<AddUserCommand> Given(IEventStorage storage)
         {
             _userRepository = A.Fake<IUserRepository>();
             _objectContext = A.Fake<IObjectContext>();
@@ -33,12 +35,36 @@ namespace Taskmaster.CommandHandlers.Tests.AddUser
                                                                                          _user.UserId = 17;
                                                                                      });
 
-            return new AddUserCommandHandler(_userRepository, _objectContext, _identityLookup);
+            return new AddUserCommandHandler(_userRepository, _objectContext, _identityLookup, storage);
         }
 
         protected override AddUserCommand When()
         {
             return new AddUserCommand(_authenticatedUserId, _userAggregateId, "Test user");
+        }
+
+        [TestMethod]
+        public void Then_Event_Is_Published()
+        {
+            Assert.AreEqual(1, Events.Length);
+        }
+
+        [TestMethod]
+        public void Then_Correct_Event_Is_Published()
+        {
+            Assert.IsInstanceOfType(Events[0],  typeof(UserAddedEvent));
+        }
+
+        [TestMethod]
+        public void Then_Name_In_Event_Is_Correct()
+        {
+            Assert.AreEqual("Test user", Event<UserAddedEvent>(0).Name);
+        }
+
+        [TestMethod]
+        public void Then_UserId_In_Event_Is_Correct()
+        {
+            Assert.AreEqual(_userAggregateId, Event<UserAddedEvent>(0).UserAggregateId);
         }
 
         [TestMethod]

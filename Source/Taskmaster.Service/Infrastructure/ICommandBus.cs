@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Taskmaster.Service.CommandHandlers;
 
-namespace Taskmaster.Service.Bus
+namespace Taskmaster.Service.Infrastructure
 {
     public interface ICommandBus
     {

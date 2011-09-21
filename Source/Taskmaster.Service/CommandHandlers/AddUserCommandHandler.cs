@@ -1,15 +1,18 @@
 ﻿using Petite;
 using Taskmaster.Domain;
 using Taskmaster.Service.Commands;
+using Taskmaster.Service.Events;
+using Taskmaster.Service.Infrastructure;
 
 namespace Taskmaster.Service.CommandHandlers
 {
     public class AddUserCommandHandler : CommandHandlerBase, ICommandHandler<AddUserCommand>
     {
-        private IUserRepository _userRepository;
-        private IObjectContext _objectContext;
+        private readonly IUserRepository _userRepository;
+        private readonly IObjectContext _objectContext;
 
-        public AddUserCommandHandler(IUserRepository userRepository, IObjectContext objectContext, IIdentityLookup identityLookup) : base(identityLookup)
+        public AddUserCommandHandler(IUserRepository userRepository, IObjectContext objectContext, IIdentityLookup identityLookup, IEventStorage storage)
+            : base(identityLookup, storage)
         {
             _userRepository = userRepository;
             _objectContext = objectContext;
@@ -22,7 +25,9 @@ namespace Taskmaster.Service.CommandHandlers
 
             _objectContext.SaveChanges();
 
-            _identityLookup.StoreMapping<Domain.User>(command.UserAggregateId, user.UserId);
+            IdentityLookup.StoreMapping<Domain.User>(command.UserAggregateId, user.UserId);
+
+            Store(new UserAddedEvent(command.UserAggregateId, command.Name, command.AuthenticatedUserId));
         }
     }
 }

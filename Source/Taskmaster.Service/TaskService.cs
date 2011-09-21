@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using AutoMapper;
 using Taskmaster.Domain;
-using Taskmaster.Service.Bus;
 using Taskmaster.Service.Commands;
+using Taskmaster.Service.Infrastructure;
 
 namespace Taskmaster.Service
 {

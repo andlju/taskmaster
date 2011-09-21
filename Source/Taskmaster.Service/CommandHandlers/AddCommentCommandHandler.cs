@@ -1,6 +1,8 @@
 ﻿using Petite;
 using Taskmaster.Domain;
 using Taskmaster.Service.Commands;
+using Taskmaster.Service.Events;
+using Taskmaster.Service.Infrastructure;
 
 namespace Taskmaster.Service.CommandHandlers
 {
@@ -9,7 +11,8 @@ namespace Taskmaster.Service.CommandHandlers
         private readonly ITaskItemRepository _taskItemRepository;
         private readonly IObjectContext _objectContext;
 
-        public AddCommentCommandHandler(ITaskItemRepository taskItemRepository, IObjectContext objectContext, IIdentityLookup identityLookup) : base(identityLookup)
+        public AddCommentCommandHandler(ITaskItemRepository taskItemRepository, IObjectContext objectContext, IIdentityLookup identityLookup, IEventStorage storage) :
+            base(identityLookup, storage)
         {
             _taskItemRepository = taskItemRepository;
             _objectContext = objectContext;
@@ -17,7 +20,7 @@ namespace Taskmaster.Service.CommandHandlers
 
         public void Handle(AddCommentCommand command)
         {
-            var taskModelId = _identityLookup.GetModelId<Domain.TaskItem>(command.TaskItemAggregateId);
+            var taskModelId = IdentityLookup.GetModelId<Domain.TaskItem>(command.TaskItemAggregateId);
 
             var createdByModelid = GetUserModelId(command.AuthenticatedUserId).Value;
 
@@ -32,7 +35,9 @@ namespace Taskmaster.Service.CommandHandlers
 
             _objectContext.SaveChanges();
 
-            _identityLookup.StoreMapping<Domain.TaskComment>(command.CommentId, comment.TaskCommentId);
+            IdentityLookup.StoreMapping<Domain.TaskComment>(command.CommentId, comment.TaskCommentId);
+
+            Store(new CommentAddedEvent(command.TaskItemAggregateId, command.CommentId, command.Comment, command.AuthenticatedUserId));
         }
     }
 }

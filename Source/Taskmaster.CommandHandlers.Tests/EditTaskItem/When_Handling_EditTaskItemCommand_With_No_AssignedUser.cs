@@ -5,6 +5,8 @@ using Petite;
 using Taskmaster.Domain;
 using Taskmaster.Service.CommandHandlers;
 using Taskmaster.Service.Commands;
+using Taskmaster.Service.Events;
+using Taskmaster.Service.Infrastructure;
 
 namespace Taskmaster.CommandHandlers.Tests.EditTaskItem
 {
@@ -20,7 +22,7 @@ namespace Taskmaster.CommandHandlers.Tests.EditTaskItem
 
         private TaskItem _taskItem;
 
-        protected override ICommandHandler<EditTaskItemCommand> Given()
+        protected override ICommandHandler<EditTaskItemCommand> Given(IEventStorage storage)
         {
             _taskItemRepository = A.Fake<ITaskItemRepository>();
             _identityLookup = A.Fake<IIdentityLookup>();
@@ -41,13 +43,50 @@ namespace Taskmaster.CommandHandlers.Tests.EditTaskItem
 
             A.CallTo(() => _taskItemRepository.Get(null)).WithAnyArguments().Returns(_taskItem);
 
-            return new EditTaskItemCommandHandler(_taskItemRepository, _objectContext, _identityLookup);
+            return new EditTaskItemCommandHandler(_taskItemRepository, _objectContext, _identityLookup, storage);
         }
 
         protected override EditTaskItemCommand When()
         {
             return new EditTaskItemCommand(_authenticatedUserId, _taskItemAggregateId, "Changed title", "Changed details", null);
         }
+
+        [TestMethod]
+        public void Then_Event_Is_Published()
+        {
+            Assert.AreEqual(1, Events.Length);
+        }
+
+        [TestMethod]
+        public void Then_Correct_Event_Is_Published()
+        {
+            Assert.IsInstanceOfType(Events[0], typeof(TaskItemEditedEvent));
+        }
+
+        [TestMethod]
+        public void Then_Title_In_Event_Is_Correct()
+        {
+            Assert.AreEqual("Changed title", Event<TaskItemEditedEvent>(0).Title);
+        }
+
+        [TestMethod]
+        public void Then_Details_In_Event_Is_Correct()
+        {
+            Assert.AreEqual("Changed details", Event<TaskItemEditedEvent>(0).Details);
+        }
+
+        [TestMethod]
+        public void Then_AssignedUser_In_Event_Is_Correct()
+        {
+            Assert.AreEqual(null, Event<TaskItemEditedEvent>(0).AssignedUserAggregateId);
+        }
+
+        [TestMethod]
+        public void Then_TaskItemId_In_Event_Is_Correct()
+        {
+            Assert.AreEqual(_taskItemAggregateId, Event<TaskItemEditedEvent>(0).TaskItemAggregateId);
+        }
+
 
         [TestMethod]
         public void Then_Title_Of_TaskItem_Is_Changed()
