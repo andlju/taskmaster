@@ -88,7 +88,8 @@ namespace Taskmaster.Web
                                                                                     TaskItemId = taskId,
                                                                                     Title = taskViewModel.Title,
                                                                                     Details = taskViewModel.Details,
-                                                                                    AssignedToUserId = taskViewModel.AssignedToUserId
+                                                                                    RequestUserId = int.Parse(Context.Request.Headers["TM-RequestUserId"].First()),
+                                                                                    AssignedToUserId = taskViewModel.AssignedToUserId,
                                                                                 });
                                     return new JsonResponse(response.TaskItemId);
                                 }
