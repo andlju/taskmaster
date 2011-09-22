@@ -7,6 +7,8 @@ using Taskmaster.DataAccess;
 using Taskmaster.Domain;
 using Taskmaster.Service;
 using Taskmaster.Service.CommandHandlers;
+using Taskmaster.Service.EventHandlers;
+using Taskmaster.Service.Events;
 using Taskmaster.Service.Infrastructure;
 using TinyIoC;
 
@@ -39,7 +41,29 @@ namespace Taskmaster.Web
 
             container.Register<IIdentityLookup>((c, p) => new IdentityLookup(new TaskmasterContext()));
 
-            container.Register<IEventStorage>((c, p) => new EventStoreStorage(new EventBus()));
+            container.Register<IEventStorage>((c, p) =>
+                                                  {
+                                                      var eventBus = new EventBus();
+
+                                                      var taskRepo = c.Resolve<ITaskItemRepository>();
+                                                      var userRepo = c.Resolve<IUserRepository>();
+                                                      var objContext = c.Resolve<IObjectContext>();
+                                                      var idLookup = c.Resolve<IIdentityLookup>();
+                                                      
+                                                      var taskItemModel = new TaskItemModelHandler(taskRepo, idLookup,
+                                                                                                   objContext);
+
+                                                      var userModel = new UserModelHandler(userRepo, objContext,
+                                                                                           idLookup);
+
+                                                      eventBus.RegisterHandler<TaskItemAddedEvent>(taskItemModel);
+                                                      eventBus.RegisterHandler<TaskItemEditedEvent>(taskItemModel);
+                                                      eventBus.RegisterHandler<CommentAddedEvent>(taskItemModel);
+
+                                                      eventBus.RegisterHandler<UserAddedEvent>(userModel);
+
+                                                      return new EventStoreStorage(eventBus);
+                                                  });
             
             container.Register<ICommandBus>((c, p) =>
                                                 {
@@ -48,14 +72,13 @@ namespace Taskmaster.Web
 
                                                     var taskRepo = c.Resolve<ITaskItemRepository>();
                                                     var userRepo = c.Resolve<IUserRepository>();
-                                                    var objContext = c.Resolve<IObjectContext>();
                                                     var idLookup = c.Resolve<IIdentityLookup>();
                                                     var storage = c.Resolve<IEventStorage>();
 
-                                                    bus.RegisterHandler(new AddTaskItemCommandHandler(taskRepo, objContext, idLookup, storage));
-                                                    bus.RegisterHandler(new EditTaskItemCommandHandler(taskRepo, objContext, idLookup, storage));
-                                                    bus.RegisterHandler(new AddCommentCommandHandler(taskRepo, objContext, idLookup, storage));
-                                                    bus.RegisterHandler(new AddUserCommandHandler(userRepo, objContext, idLookup, storage));
+                                                    bus.RegisterHandler(new AddTaskItemCommandHandler(storage));
+                                                    bus.RegisterHandler(new EditTaskItemCommandHandler(storage));
+                                                    bus.RegisterHandler(new AddCommentCommandHandler(storage));
+                                                    bus.RegisterHandler(new AddUserCommandHandler(userRepo, storage));
 
                                                     return bus;
                                                 });

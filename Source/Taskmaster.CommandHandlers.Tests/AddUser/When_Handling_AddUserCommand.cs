@@ -35,7 +35,7 @@ namespace Taskmaster.CommandHandlers.Tests.AddUser
                                                                                          _user.UserId = 17;
                                                                                      });
 
-            return new AddUserCommandHandler(_userRepository, _objectContext, _identityLookup, storage);
+            return new AddUserCommandHandler(_userRepository, storage);
         }
 
         protected override AddUserCommand When()
@@ -65,30 +65,6 @@ namespace Taskmaster.CommandHandlers.Tests.AddUser
         public void Then_UserId_In_Event_Is_Correct()
         {
             Assert.AreEqual(_userAggregateId, Event<UserAddedEvent>(0).UserAggregateId);
-        }
-
-        [TestMethod]
-        public void Then_User_Is_Added()
-        {
-            Assert.IsNotNull(_user);
-        }
-
-        [TestMethod]
-        public void Then_User_Name_Is_Correct()
-        {
-            Assert.AreEqual("Test user", _user.Name);
-        }
-
-        [TestMethod]
-        public void Then_Changes_Are_Saved_In_ObjectContext()
-        {
-            A.CallTo(() => _objectContext.SaveChanges()).MustHaveHappened(Repeated.Exactly.Once);
-        }
-
-        [TestMethod]
-        public void Then_Identity_Is_Mapped()
-        {
-            A.CallTo(() => _identityLookup.StoreMapping<User>(_userAggregateId, 17)).MustHaveHappened(Repeated.Exactly.Once);
         }
     }
 }

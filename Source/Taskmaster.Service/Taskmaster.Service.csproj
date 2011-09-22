@@ -50,6 +50,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EventHandlers\TaskItemModelHandler.cs" />
+    <Compile Include="EventHandlers\UserModelEventHandler.cs" />
     <Compile Include="Events\IEvent.cs" />
     <Compile Include="Infrastructure\ICommandBus.cs" />
     <Compile Include="Infrastructure\IEventBus.cs" />

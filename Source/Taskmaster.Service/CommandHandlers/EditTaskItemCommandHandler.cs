@@ -8,32 +8,16 @@ namespace Taskmaster.Service.CommandHandlers
 {
     public class EditTaskItemCommandHandler : CommandHandlerBase, ICommandHandler<EditTaskItemCommand>
     {
-
-        private readonly ITaskItemRepository _taskItemRepository;
-        private readonly IObjectContext _objectContext;
-
-        public EditTaskItemCommandHandler(ITaskItemRepository taskItemRepository, IObjectContext objectContext, IIdentityLookup identityLookup, IEventStorage storage) :
-            base(identityLookup, storage)
+        public EditTaskItemCommandHandler(IEventStorage storage) :
+            base(storage)
         {
-            _taskItemRepository = taskItemRepository;
-            _objectContext = objectContext;
         }
 
         public void Handle(EditTaskItemCommand command)
         {
-            var taskItemIdModel = IdentityLookup.GetModelId<Domain.TaskItem>(command.TaskItemAggregateId);
+            // TODO Check user athorization
 
-            int? assignedToUserModelId = GetUserModelId(command.AssignedUserAggregateId);
-
-            var taskItem = _taskItemRepository.Get(t => t.TaskItemId == taskItemIdModel);
-
-            taskItem.Title = command.Title;
-            taskItem.Details = command.Details;
-            taskItem.AssignedToUserId = assignedToUserModelId;
-
-            _objectContext.SaveChanges();
-
-            Store(new TaskItemEditedEvent(command.TaskItemAggregateId, command.Title, command.Details, command.AssignedUserAggregateId));
+            Store(new TaskItemEditedEvent(command.TaskItemAggregateId, command.Title, command.Details, command.AssignedUserAggregateId, command.AuthenticatedUserId));
         }
     }
 }
