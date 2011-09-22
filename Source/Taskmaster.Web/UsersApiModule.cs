@@ -24,7 +24,7 @@ namespace Taskmaster.Web
                                     return new JsonResponse(users.Select(u => new User() {UserId = u.UserId, Name = u.Name})).
                                         WithNoCache();
                                 };
-
+            
             Post["/users"] = parameters =>
                                  {
                                      var user = this.Bind<UserViewModel>();
@@ -32,6 +32,14 @@ namespace Taskmaster.Web
 
                                      return new JsonResponse(response.UserId);
                                  };
+
+            Get["/add-test-users"] = parameters =>
+                                        {
+                                            userService.AddUser(new AddUserRequest() { Name = "Guest", RequestUserId = 1 });
+                                            userService.AddUser(new AddUserRequest() { Name = "Anders", RequestUserId = 1 });
+                                            
+                                            return "OK";
+                                        };
         }
     }
 }
