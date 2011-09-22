@@ -53,6 +53,7 @@
     <Compile Include="EventHandlers\TaskItemModelHandler.cs" />
     <Compile Include="EventHandlers\UserModelEventHandler.cs" />
     <Compile Include="Events\IEvent.cs" />
+    <Compile Include="IAdminService.cs" />
     <Compile Include="Infrastructure\ICommandBus.cs" />
     <Compile Include="Infrastructure\IEventBus.cs" />
     <Compile Include="Infrastructure\IEventStorage.cs" />

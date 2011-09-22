@@ -38,32 +38,36 @@ namespace Taskmaster.Web
                                                            c.Resolve<ICommandBus>(),
                                                            c.Resolve<IIdentityLookup>()
                                                            ));
+            container.Register<IAdminService>(
+                (c, p) => new AdminService(c.Resolve<IEventStorage>(), c.Resolve<IEventBus>()));
 
             container.Register<IIdentityLookup>((c, p) => new IdentityLookup(new TaskmasterContext()));
 
-            container.Register<IEventStorage>((c, p) =>
-                                                  {
-                                                      var eventBus = new EventBus();
+            container.Register<IEventBus>((c, p) =>
+                                              {
 
-                                                      var taskRepo = c.Resolve<ITaskItemRepository>();
-                                                      var userRepo = c.Resolve<IUserRepository>();
-                                                      var objContext = c.Resolve<IObjectContext>();
-                                                      var idLookup = c.Resolve<IIdentityLookup>();
-                                                      
-                                                      var taskItemModel = new TaskItemModelHandler(taskRepo, idLookup,
-                                                                                                   objContext);
+                                                  var eventBus = new EventBus();
+                                                  var taskRepo = c.Resolve<ITaskItemRepository>();
+                                                  var userRepo = c.Resolve<IUserRepository>();
+                                                  var objContext = c.Resolve<IObjectContext>();
+                                                  var idLookup = c.Resolve<IIdentityLookup>();
 
-                                                      var userModel = new UserModelHandler(userRepo, objContext,
-                                                                                           idLookup);
+                                                  var taskItemModel = new TaskItemModelHandler(taskRepo, idLookup,
+                                                                                               objContext);
 
-                                                      eventBus.RegisterHandler<TaskItemAddedEvent>(taskItemModel);
-                                                      eventBus.RegisterHandler<TaskItemEditedEvent>(taskItemModel);
-                                                      eventBus.RegisterHandler<CommentAddedEvent>(taskItemModel);
+                                                  var userModel = new UserModelHandler(userRepo, objContext,
+                                                                                       idLookup);
 
-                                                      eventBus.RegisterHandler<UserAddedEvent>(userModel);
+                                                  eventBus.RegisterHandler<TaskItemAddedEvent>(taskItemModel);
+                                                  eventBus.RegisterHandler<TaskItemEditedEvent>(taskItemModel);
+                                                  eventBus.RegisterHandler<CommentAddedEvent>(taskItemModel);
 
-                                                      return new EventStoreStorage(eventBus);
-                                                  });
+                                                  eventBus.RegisterHandler<UserAddedEvent>(userModel);
+                                                  return eventBus;
+
+                                              });
+
+            container.Register<IEventStorage>((c, p) => new EventStoreStorage(c.Resolve<IEventBus>()));
             
             container.Register<ICommandBus>((c, p) =>
                                                 {

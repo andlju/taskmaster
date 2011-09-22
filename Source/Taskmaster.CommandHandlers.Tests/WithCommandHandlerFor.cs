@@ -19,6 +19,11 @@ namespace Taskmaster.CommandHandlers.Tests
             {
                 StoredEvents.Add(evt);
             }
+
+            public IEnumerable<IEvent> GetEventsSince(DateTime minValue)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         protected abstract ICommandHandler<T> Given(IEventStorage eventStorage);

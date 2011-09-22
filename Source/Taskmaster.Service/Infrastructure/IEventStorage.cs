@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Data.SqlTypes;
+using System.Linq;
 using EventStore;
 using EventStore.Dispatcher;
 using Taskmaster.Service.Events;
@@ -8,6 +11,7 @@ namespace Taskmaster.Service.Infrastructure
     public interface IEventStorage
     {
         void Store<T>(T evt) where T : IEvent;
+        IEnumerable<IEvent> GetEventsSince(DateTime minValue);
     }
 
     public class EventStoreStorage : IEventStorage
@@ -40,6 +44,13 @@ namespace Taskmaster.Service.Infrastructure
                 
                 stream.CommitChanges(Guid.NewGuid());
             }
+        }
+
+        public IEnumerable<IEvent> GetEventsSince(DateTime fromDate)
+        {
+            var commits = _store.GetFrom(SqlDateTime.MinValue.Value);
+
+            return commits.SelectMany(c => c.Events).Select(e => e.Body).Cast<IEvent>();
         }
     }
 }
