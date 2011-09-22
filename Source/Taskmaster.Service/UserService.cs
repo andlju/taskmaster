@@ -37,7 +37,7 @@ namespace Taskmaster.Service
                            UserId = userModelId
                        };
         }
-
+        
         public ListUsersResponse ListUsers(ListUsersRequest request)
         {
             var users = _userRepository.List().Select(u => new User() {UserId = u.UserId, Name = u.Name});
