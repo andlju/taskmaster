@@ -7,7 +7,7 @@ namespace Taskmaster.Web
     {
         public AdminApiModule(IAdminService adminService) : base("/api/admin")
         {
-            Get["/"] = parameters =>
+            Get["/replay-all"] = parameters =>
                            {
                                adminService.ReplayAllEvents();
                                return "OK";
