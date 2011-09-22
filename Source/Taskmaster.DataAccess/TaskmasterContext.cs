@@ -12,10 +12,8 @@ namespace Taskmaster.DataAccess
     {
         protected override void Seed(TaskmasterContext context)
         {
-            var defaultUser = new User() { Name = "Guest" };
-            var testUser = new User() {Name = "Test"};
-            context.UserItems.Add(defaultUser);
-            context.UserItems.Add(testUser);
+            var adminUser = new User() { Name = "Admin" };
+            context.UserItems.Add(adminUser);
             
             context.SaveChanges();
 
@@ -23,15 +21,8 @@ namespace Taskmaster.DataAccess
             context.IdentityMappings.Add(new IdentityMapping()
             {
                 AggregateType = "User",
-                AggregateId = Guid.NewGuid(),
-                ModelId = defaultUser.UserId
-            });
-
-            context.IdentityMappings.Add(new IdentityMapping()
-            {
-                AggregateType = "User",
-                AggregateId = Guid.NewGuid(),
-                ModelId = testUser.UserId
+                AggregateId = Guid.Empty,
+                ModelId = adminUser.UserId
             });
 
             context.SaveChanges();
