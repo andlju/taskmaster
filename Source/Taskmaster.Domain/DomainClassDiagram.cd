@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Taskmaster.Domain.TaskItem">
+    <Position X="2.75" Y="0.5" Width="2" />
+    <AssociationLine Name="AssignedTo" Type="Taskmaster.Domain.User" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="3.125" Y="2.373" />
+        <Point X="3.125" Y="4.375" />
+        <Point X="4.75" Y="4.375" />
+      </Path>
+    </AssociationLine>
+    <AssociationLine Name="CreatedBy" Type="Taskmaster.Domain.User" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="3.75" Y="2.373" />
+        <Point X="3.75" Y="3.375" />
+        <Point X="4.75" Y="3.375" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAABAEAAIAAAAAAAAAAAAAAAAAgBAAAAIAE=</HashCode>
+      <FileName>TaskItem.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="AssignedTo" />
+      <Property Name="CreatedBy" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="Comments" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="Taskmaster.Domain.TaskComment">
+    <Position X="6" Y="0.5" Width="1.5" />
+    <AssociationLine Name="CreatedBy" Type="Taskmaster.Domain.User" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="6.938" Y="2.18" />
+        <Point X="6.938" Y="3.898" />
+        <Point X="6.25" Y="3.898" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEAAAAAAAAIAAAAAAACAAAAAAAAAgAAAAAAAE=</HashCode>
+      <FileName>TaskComment.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="CreatedBy" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Taskmaster.Domain.User">
+    <Position X="4.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>User.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
