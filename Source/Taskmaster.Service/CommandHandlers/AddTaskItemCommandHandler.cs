@@ -15,8 +15,14 @@ namespace Taskmaster.Service.CommandHandlers
 
         public void Handle(AddTaskItemCommand command)
         {
-            // TODO Validate User
-            Store(new TaskItemAddedEvent(command.TaskItemAggregateId, command.Title, command.Details, command.AssignedUserAggregateId, command.AuthenticatedUserId));
+            // TODO Validate that Command is OK
+
+            Store(new TaskItemAddedEvent(
+                command.TaskItemAggregateId, 
+                command.Title, 
+                command.Details, 
+                command.AssignedUserAggregateId, 
+                command.AuthenticatedUserId));
         }
 
     }
