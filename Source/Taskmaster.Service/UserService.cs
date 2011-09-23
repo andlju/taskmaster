@@ -27,7 +27,7 @@ namespace Taskmaster.Service
         {
             var userAggregateId = Guid.NewGuid();
 
-            _commandBus.Publish(new AddUserCommand(GetUserAggregateId(request.RequestUserId).Value, userAggregateId, request.Name));
+            _commandBus.Dispatch(new AddUserCommand(GetUserAggregateId(request.RequestUserId).Value, userAggregateId, request.Name));
 
             var userModelId = _identityLookup.GetModelId<Domain.User>(userAggregateId);
 

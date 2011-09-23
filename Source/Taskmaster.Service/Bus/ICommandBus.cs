@@ -6,7 +6,7 @@ namespace Taskmaster.Service.Bus
 {
     public interface ICommandBus
     {
-        void Publish<T>(T command);
+        void Dispatch<T>(T command);
         void RegisterHandler<T>(ICommandHandler<T> handler);
     }
 
@@ -14,7 +14,7 @@ namespace Taskmaster.Service.Bus
     {
         private readonly Dictionary<Type, object> _handlers = new Dictionary<Type, object>();
 
-        public void Publish<T>(T command)
+        public void Dispatch<T>(T command)
         {
             var type = typeof (T);
             var handler = (ICommandHandler<T>)_handlers[type];

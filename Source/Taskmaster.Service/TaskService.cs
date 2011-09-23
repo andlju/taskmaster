@@ -33,7 +33,7 @@ namespace Taskmaster.Service
 
             Guid? assignedUserAggregateId = GetUserAggregateId(request.AssignedToUserId);
 
-            _commandBus.Publish(new AddTaskItemCommand(GetUserAggregateId(request.RequestUserId).Value, taskItemAggregateId, request.Title, request.Details, assignedUserAggregateId));
+            _commandBus.Dispatch(new AddTaskItemCommand(GetUserAggregateId(request.RequestUserId).Value, taskItemAggregateId, request.Title, request.Details, assignedUserAggregateId));
 
             int taskItemModelId = _identityLookup.GetModelId<Domain.TaskItem>(taskItemAggregateId);
 
@@ -50,7 +50,7 @@ namespace Taskmaster.Service
 
             Guid? assignedUserAggregateId = GetUserAggregateId(request.AssignedToUserId);
 
-            _commandBus.Publish(new EditTaskItemCommand(GetUserAggregateId(request.RequestUserId).Value, taskItemAggregateId, request.Title, request.Details, assignedUserAggregateId));
+            _commandBus.Dispatch(new EditTaskItemCommand(GetUserAggregateId(request.RequestUserId).Value, taskItemAggregateId, request.Title, request.Details, assignedUserAggregateId));
 
             return new EditTaskItemResponse()
             {
@@ -64,7 +64,7 @@ namespace Taskmaster.Service
             Guid taskItemAggregateId = _identityLookup.GetAggregateId<Domain.TaskItem>(request.TaskItemId);
             Guid commentId = Guid.NewGuid();
 
-            _commandBus.Publish(new AddCommentCommand(GetUserAggregateId(request.RequestUserId).Value, taskItemAggregateId, commentId, request.Comment));
+            _commandBus.Dispatch(new AddCommentCommand(GetUserAggregateId(request.RequestUserId).Value, taskItemAggregateId, commentId, request.Comment));
 
             int commentModelId = _identityLookup.GetModelId<Domain.TaskComment>(commentId);
 
